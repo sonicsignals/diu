@@ -1,50 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>C Code Blog</title>
-    
-    <!-- Prism.js CSS for syntax highlighting -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C Code Blog - Persistent</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f7f7f7;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background-color: #333;
-            color: white;
-            padding: 1rem;
-            text-align: center;
-        }
-        main {
-            max-width: 900px;
-            margin: 2rem auto;
-            padding: 1rem;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        pre {
-            border-radius: 5px;
-            padding: 1rem;
-            overflow-x: auto;
-        }
-        article {
-            margin-bottom: 2rem;
-        }
-        article h2 {
-            color: #555;
-        }
-    </style>
+<!-- Prism.js for syntax highlighting -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+
+<style>
+body { font-family: Arial, sans-serif; background-color: #f0f0f0; margin: 0; padding: 0; }
+header { background-color: #333; color: white; padding: 1rem; text-align: center; }
+main { max-width: 900px; margin: 2rem auto; padding: 1rem; background: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h1,h2 { text-align: center; color: #333; }
+textarea { width: 100%; height: 120px; margin-bottom: 0.5rem; padding: 0.5rem; font-family: monospace; font-size: 14px; border-radius: 5px; }
+button { margin: 0.2rem; padding: 0.4rem 0.8rem; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+button.add { background-color: #4CAF50; color: white; }
+button.delete { background-color: #f44336; color: white; }
+button.edit { background-color: #2196F3; color: white; }
+button.toggle { background-color: #ff9800; color: white; }
+pre { border-radius: 5px; padding: 1rem; background-color: #2d2d2d; overflow-x: auto; margin: 0.5rem 0; }
+article { margin-bottom: 1.5rem; border-bottom: 1px solid #ccc; padding-bottom: 1rem; }
+</style>
 </head>
 <body>
 
@@ -53,29 +30,113 @@
 </header>
 
 <main>
-    <article>
-        <h2>Example C Code: Linked List</h2>
-        <pre><code class="language-c">
+    <h2>Enter Your C Code Snippets</h2>
+    <div id="fields">
+        <textarea placeholder="Enter code for field 1"></textarea>
+        <textarea placeholder="Enter code for field 2"></textarea>
+        <textarea placeholder="Enter code for field 3"></textarea>
+        <textarea placeholder="Enter code for field 4"></textarea>
+        <textarea placeholder="Enter code for field 5"></textarea>
+    </div>
+    <div style="text-align:center;">
+        <button class="add" onclick="addSnippets()">Insert Snippets</button>
+    </div>
 
-        </code></pre>
-    </article>
-
-    <article>
-        <h2>Another Example: Simple Hello World</h2>
-        <pre><code class="language-c">
-#include &lt;stdio.h&gt;
-
-int main() {
-    printf("Hello, World!\n");
-    return 0;
-}
-        </code></pre>
-    </article>
+    <h2>Code Snippets</h2>
+    <div id="blog"></div>
 </main>
 
 <!-- Prism.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/prism.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-c.min.js"></script>
+
+<script>
+// Persistent snippets using localStorage
+let snippets = JSON.parse(localStorage.getItem('cCodeSnippets') || '[]');
+
+function saveSnippets() {
+    localStorage.setItem('cCodeSnippets', JSON.stringify(snippets));
+}
+
+function addSnippets() {
+    const textareas = document.querySelectorAll('#fields textarea');
+    textareas.forEach(ta => {
+        if (ta.value.trim() !== "") {
+            snippets.push({ id: Date.now() + Math.random(), code: ta.value, minimized: false });
+            ta.value = "";
+        }
+    });
+    saveSnippets();
+    renderSnippets();
+}
+
+function deleteSnippet(id) {
+    snippets = snippets.filter(s => s.id !== id);
+    saveSnippets();
+    renderSnippets();
+}
+
+function editSnippet(id) {
+    const snippet = snippets.find(s => s.id === id);
+    const newCode = prompt("Edit your code:", snippet.code);
+    if (newCode !== null) {
+        snippet.code = newCode;
+        saveSnippets();
+        renderSnippets();
+    }
+}
+
+function toggleSnippet(id) {
+    const snippet = snippets.find(s => s.id === id);
+    snippet.minimized = !snippet.minimized;
+    saveSnippets();
+    renderSnippets();
+}
+
+function renderSnippets() {
+    const blog = document.getElementById('blog');
+    blog.innerHTML = "";
+    snippets.forEach(s => {
+        const article = document.createElement('article');
+
+        // Buttons
+        const editBtn = document.createElement('button');
+        editBtn.className = 'edit';
+        editBtn.textContent = 'Edit';
+        editBtn.onclick = () => editSnippet(s.id);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.onclick = () => deleteSnippet(s.id);
+
+        const toggleBtn = document.createElement('button');
+        toggleBtn.className = 'toggle';
+        toggleBtn.textContent = s.minimized ? 'Expand' : 'Minimize';
+        toggleBtn.onclick = () => toggleSnippet(s.id);
+
+        article.appendChild(editBtn);
+        article.appendChild(deleteBtn);
+        article.appendChild(toggleBtn);
+
+        // Code snippet
+        if (!s.minimized) {
+            const pre = document.createElement('pre');
+            const code = document.createElement('code');
+            code.className = 'language-c';
+            code.textContent = s.code;
+            pre.appendChild(code);
+            article.appendChild(pre);
+        }
+
+        blog.appendChild(article);
+    });
+    Prism.highlightAll();
+}
+
+// Render on page load
+renderSnippets();
+</script>
 
 </body>
 </html>
