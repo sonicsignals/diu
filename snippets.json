@@ -1,0 +1,23 @@
+{
+  "id": 123456789,      // unique identifier (number)
+  "code": "C code here", // the actual C code
+  "minimized": false     // whether the snippet is minimized or expanded
+}
+
+[
+  {
+    "id": 1,
+    "code": "#include <stdio.h>\nint main() {\n    printf(\"Hello World\\n\");\n    return 0;\n}",
+    "minimized": false
+  },
+  {
+    "id": 2,
+    "code": "#include <stdlib.h>\nstruct Node {\n    int data;\n    struct Node* next;\n};",
+    "minimized": false
+  },
+  {
+    "id": 3,
+    "code": "#include <stdio.h>\nint add(int a, int b) {\n    return a + b;\n}",
+    "minimized": false
+  }
+]
